@@ -59,20 +59,12 @@ if (!gotTheLock) {
   }
 
   function getAppIcon() {
-    const webpPath = path.join(__dirname, 'icon.webp');
+    const icoPath = path.join(__dirname, 'icon.ico');
     const pngPath = path.join(__dirname, 'icon.png');
-    if (!fs.existsSync(pngPath) && fs.existsSync(webpPath)) {
-      try {
-        const { nativeImage } = require('electron');
-        const img = nativeImage.createFromPath(webpPath);
-        if (!img.isEmpty()) {
-          fs.writeFileSync(pngPath, img.toPNG());
-        }
-      } catch (e) {
-        console.error('Failed to convert icon to png:', e);
-      }
-    }
-    return fs.existsSync(pngPath) ? pngPath : webpPath;
+    const webpPath = path.join(__dirname, 'icon.webp');
+    if (fs.existsSync(icoPath)) return icoPath;
+    if (fs.existsSync(pngPath)) return pngPath;
+    return webpPath;
   }
 
   function createWindow() {
