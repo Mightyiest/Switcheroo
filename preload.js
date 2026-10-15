@@ -13,6 +13,12 @@ contextBridge.exposeInMainWorld('switcheroo', {
   saveSettings: (data) => ipcRenderer.invoke('config:saveSettings', data),
   openSteamUrl: (url) => ipcRenderer.invoke('system:openSteamUrl', url),
   openExternalUrl: (url) => ipcRenderer.invoke('system:openExternalUrl', url),
-  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
-  closeWindow: () => ipcRenderer.invoke('window:close')
+  minimizeWindow: () => {
+    try { ipcRenderer.send('window:minimize'); } catch (_) {}
+    return ipcRenderer.invoke('window:minimize');
+  },
+  closeWindow: () => {
+    try { ipcRenderer.send('window:close'); } catch (_) {}
+    return ipcRenderer.invoke('window:close');
+  }
 });

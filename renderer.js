@@ -154,53 +154,81 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function setupEventListeners() {
-  btnRefresh.addEventListener('click', async () => {
-    btnRefresh.style.transform = 'rotate(360deg)';
-    btnRefresh.style.transition = 'transform 0.5s ease';
-    setTimeout(() => { btnRefresh.style.transform = 'none'; }, 500);
-    await refreshAll();
-    showToast('Accounts and system status refreshed', 'info');
-  });
+  // Custom Frameless Window controls (Minimize & Close for fixed window) - highest priority
+  if (btnWinMinimize) {
+    btnWinMinimize.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.switcheroo.minimizeWindow();
+    });
+  }
+  if (btnWinClose) {
+    btnWinClose.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.switcheroo.closeWindow();
+    });
+  }
 
-  btnSyncAll.addEventListener('click', handleSyncAllClick);
-  btnBackups.addEventListener('click', openBackupsModal);
-  btnCloseBackupsModal.addEventListener('click', closeBackupsModal);
-  btnCloseBackupsModalBtn.addEventListener('click', closeBackupsModal);
-  btnOpenBackupsDir.addEventListener('click', async () => {
-    const res = await window.switcheroo.openFolder();
-    if (res && !res.success) showToast(res.error || 'Could not open backups folder.', 'error');
-  });
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', async () => {
+      btnRefresh.style.transform = 'rotate(360deg)';
+      btnRefresh.style.transition = 'transform 0.5s ease';
+      setTimeout(() => { btnRefresh.style.transform = 'none'; }, 500);
+      await refreshAll();
+      showToast('Accounts and system status refreshed', 'info');
+    });
+  }
 
-  linkOpenUserdata.addEventListener('click', async (e) => {
-    e.preventDefault();
-    if (state.system && state.system.steam && state.system.steam.steamPath) {
-      const res = await window.switcheroo.openFolder(state.system.steam.steamPath + '\\userdata');
-      if (res && !res.success) showToast(res.error || 'Could not open userdata folder.', 'error');
-    }
-  });
+  if (btnSyncAll) btnSyncAll.addEventListener('click', handleSyncAllClick);
+  if (btnBackups) btnBackups.addEventListener('click', openBackupsModal);
+  if (btnCloseBackupsModal) btnCloseBackupsModal.addEventListener('click', closeBackupsModal);
+  if (btnCloseBackupsModalBtn) btnCloseBackupsModalBtn.addEventListener('click', closeBackupsModal);
+  if (btnOpenBackupsDir) {
+    btnOpenBackupsDir.addEventListener('click', async () => {
+      const res = await window.switcheroo.openFolder();
+      if (res && !res.success) showToast(res.error || 'Could not open backups folder.', 'error');
+    });
+  }
 
-  linkOpenBackups.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const res = await window.switcheroo.openFolder();
-    if (res && !res.success) showToast(res.error || 'Could not open backups folder.', 'error');
-  });
+  if (linkOpenUserdata) {
+    linkOpenUserdata.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (state.system && state.system.steam && state.system.steam.steamPath) {
+        const res = await window.switcheroo.openFolder(state.system.steam.steamPath + '\\userdata');
+        if (res && !res.success) showToast(res.error || 'Could not open userdata folder.', 'error');
+      }
+    });
+  }
+
+  if (linkOpenBackups) {
+    linkOpenBackups.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const res = await window.switcheroo.openFolder();
+      if (res && !res.success) showToast(res.error || 'Could not open backups folder.', 'error');
+    });
+  }
 
   // Auto-Sync Toggle listener
-  chkAutoSync.addEventListener('change', async (e) => {
-    state.autoSyncOnSwitch = e.target.checked;
-    await window.switcheroo.saveSettings({ autoSyncOnSwitch: state.autoSyncOnSwitch });
-    showToast(`Auto-sync on switch is now ${state.autoSyncOnSwitch ? 'ENABLED' : 'DISABLED'}`, 'info');
-  });
+  if (chkAutoSync) {
+    chkAutoSync.addEventListener('change', async (e) => {
+      state.autoSyncOnSwitch = e.target.checked;
+      await window.switcheroo.saveSettings({ autoSyncOnSwitch: state.autoSyncOnSwitch });
+      showToast(`Auto-sync on switch is now ${state.autoSyncOnSwitch ? 'ENABLED' : 'DISABLED'}`, 'info');
+    });
+  }
 
   // Launch options input listener with debounce
-  let launchOptionsDebounce = null;
-  txtLaunchOptions.addEventListener('input', (e) => {
-    state.launchOptions = e.target.value.trim();
-    clearTimeout(launchOptionsDebounce);
-    launchOptionsDebounce = setTimeout(async () => {
-      await window.switcheroo.saveSettings({ launchOptions: state.launchOptions });
-    }, 300);
-  });
+  if (txtLaunchOptions) {
+    let launchOptionsDebounce = null;
+    txtLaunchOptions.addEventListener('input', (e) => {
+      state.launchOptions = e.target.value.trim();
+      clearTimeout(launchOptionsDebounce);
+      launchOptionsDebounce = setTimeout(async () => {
+        await window.switcheroo.saveSettings({ launchOptions: state.launchOptions });
+      }, 300);
+    });
+  }
 
   function hasLaunchOption(fullOptions, option) {
     if (!fullOptions || !option) return false;
@@ -212,6 +240,7 @@ function setupEventListeners() {
   // Launch option chips
   document.querySelectorAll('.chip-preset').forEach(chip => {
     chip.addEventListener('click', async () => {
+      if (!txtLaunchOptions) return;
       const val = chip.getAttribute('data-chip');
       let current = txtLaunchOptions.value.trim();
       if (!hasLaunchOption(current, val)) {
@@ -223,18 +252,6 @@ function setupEventListeners() {
       }
     });
   });
-
-  // Custom Frameless Window controls (Minimize & Close for fixed window)
-  if (btnWinMinimize) {
-    btnWinMinimize.addEventListener('click', () => {
-      window.switcheroo.minimizeWindow();
-    });
-  }
-  if (btnWinClose) {
-    btnWinClose.addEventListener('click', () => {
-      window.switcheroo.closeWindow();
-    });
-  }
 
   // Test Mode Toggle
   if (btnToggleDummy) {

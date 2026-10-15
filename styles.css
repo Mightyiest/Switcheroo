@@ -95,6 +95,7 @@ body {
 .app-header a,
 .app-header .status-chip,
 .app-header .win-btn,
+.brand,
 .brand-logo {
   -webkit-app-region: no-drag;
 }
@@ -243,20 +244,32 @@ body {
 }
 
 /* Custom Frameless Window Controls */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  -webkit-app-region: no-drag !important;
+}
+
 .win-controls {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 2px;
   margin-left: 6px;
   padding-left: 8px;
   border-left: 1px solid var(--border-subtle);
-  height: 26px;
-  -webkit-app-region: no-drag;
+  height: 28px;
+  -webkit-app-region: no-drag !important;
+}
+
+.win-controls * {
+  -webkit-app-region: no-drag !important;
 }
 
 .win-btn {
-  width: 28px;
-  height: 26px;
+  width: 30px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -267,7 +280,16 @@ body {
   cursor: pointer;
   transition: background-color 0.12s ease, color 0.12s ease;
   padding: 0;
-  -webkit-app-region: no-drag;
+  -webkit-app-region: no-drag !important;
+  position: relative;
+  z-index: 10;
+}
+
+.win-btn svg,
+.win-btn path,
+.win-btn rect {
+  pointer-events: none !important;
+  -webkit-app-region: no-drag !important;
 }
 
 .win-btn:hover {
@@ -441,7 +463,7 @@ body {
 /* Main Content: Accounts Grid (Responsive 2-column layout for fixed window) */
 .main-content {
   flex: 1;
-  padding: 12px 14px;
+  padding: 8px 12px;
   overflow-y: auto;
   scrollbar-gutter: stable;
 }
@@ -449,8 +471,8 @@ body {
 .accounts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  padding-bottom: 8px;
+  gap: 8px;
+  padding-bottom: 4px;
 }
 
 /* Compact Account Card */
@@ -458,11 +480,11 @@ body {
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  padding: 9px 11px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   transition: all 0.15s ease;
 }
 
@@ -486,13 +508,13 @@ body {
 .account-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
 }
 
 .avatar-wrapper {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
 }
 
@@ -607,11 +629,11 @@ body {
 
 .btn-primary-action {
   width: 100%;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   border: none;
   font-family: 'Outfit', sans-serif;
-  font-size: 0.84rem;
+  font-size: 0.80rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -650,13 +672,13 @@ body {
 .card-sub-actions {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .btn-sub-card {
   flex: 1;
-  padding: 4px 6px;
-  font-size: 0.68rem;
+  padding: 3px 5px;
+  font-size: 0.66rem;
   font-weight: 600;
   font-family: 'Outfit', sans-serif;
   border-radius: var(--radius-xs);

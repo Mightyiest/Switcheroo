@@ -72,8 +72,8 @@ if (!gotTheLock) {
     const iconFile = getAppIcon();
 
     mainWindow = new BrowserWindow({
-      width: 780,
-      height: 640,
+      width: 800,
+      height: 720,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
@@ -97,13 +97,24 @@ if (!gotTheLock) {
   }
 
   // Window Controls IPC
-  ipcMain.handle('window:minimize', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
-  });
+  const handleWindowMinimize = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.minimize();
+    }
+  };
 
-  ipcMain.handle('window:close', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close();
-  });
+  const handleWindowClose = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.destroy();
+    }
+    app.quit();
+  };
+
+  ipcMain.handle('window:minimize', handleWindowMinimize);
+  ipcMain.on('window:minimize', handleWindowMinimize);
+
+  ipcMain.handle('window:close', handleWindowClose);
+  ipcMain.on('window:close', handleWindowClose);
 
   const isValidSteamId3 = (id) => typeof id === 'string' && /^\d{1,16}$/.test(id);
   const isValidBackupFolder = (name) => typeof name === 'string' && /^[a-zA-Z0-9_\-\.]+$/.test(name) && !name.includes('..');
