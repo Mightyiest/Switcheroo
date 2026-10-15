@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Switcheroo</title>
+  <link rel="icon" type="image/webp" href="icon.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Compact Header -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="icon.webp" class="brand-logo" alt="Switcheroo Icon">
+        <div class="brand-text">
+          <h1>SWITCHEROO</h1>
+          <span class="brand-badge">DOTA 2 SWITCHER</span>
+        </div>
+      </div>
+
+      <!-- Compact System Status -->
+      <div class="system-status">
+        <div class="status-chip" id="steamStatusPill" title="Steam Installation Status">
+          <span class="status-dot pulsing" id="steamDot"></span>
+          <span class="status-label">Steam</span>
+        </div>
+        <div class="status-chip" id="dotaStatusPill" title="Dota 2 Installation Status">
+          <span class="status-dot pulsing" id="dotaDot"></span>
+          <span class="status-label">Dota 2</span>
+        </div>
+      </div>
+
+      <!-- Header Actions & Custom Window Controls -->
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" id="btnBackups" title="View automatic backups">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Backups
+        </button>
+
+        <button class="btn btn-primary btn-sm" id="btnSyncAll" title="Sync Master settings to all accounts">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Sync All
+        </button>
+
+        <button class="btn btn-icon btn-sm" id="btnRefresh" title="Refresh accounts">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+
+        <!-- Custom Frameless Window Controls -->
+        <div class="win-controls">
+          <button class="win-btn" id="btnWinMinimize" title="Minimize">
+            <svg viewBox="0 0 10 10" width="10" height="10"><rect y="4.5" width="10" height="1.2" fill="currentColor"/></svg>
+          </button>
+          <button class="win-btn" id="btnWinMaximize" title="Maximize">
+            <svg viewBox="0 0 10 10" width="9" height="9"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+          <button class="win-btn win-btn-close" id="btnWinClose" title="Close">
+            <svg viewBox="0 0 10 10" width="10" height="10"><path d="M1.5 1.5L8.5 8.5M8.5 1.5L1.5 8.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Compact Toolbar: Master Info + Launch Options -->
+    <div class="toolbar-panel">
+      <div class="master-chip" id="masterBanner">
+        <span class="master-star">★</span>
+        <span class="master-chip-text">Master: <strong id="masterAccountName">Loading...</strong></span>
+      </div>
+
+      <div class="launch-opts-box">
+        <span class="launch-label">Launch:</span>
+        <input type="text" id="txtLaunchOptions" class="input-launch" placeholder="-novid -high -map dota" value="-novid -high -map dota">
+        <div class="chip-row">
+          <span class="chip-preset" data-chip="-novid">-novid</span>
+          <span class="chip-preset" data-chip="-high">-high</span>
+          <span class="chip-preset" data-chip="-map dota">-map dota</span>
+          <span class="chip-preset" data-chip="-dx11">-dx11</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content: Compact Accounts Grid -->
+    <main class="main-content">
+      <div class="accounts-grid" id="accountsGrid">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading accounts...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Sleek Compact Footer -->
+    <footer class="app-footer">
+      <div class="footer-tip">
+        <span>💡 If Steam shows Cloud Conflict: pick <strong>Local Files</strong>.</span>
+      </div>
+      <div class="footer-links">
+        <a href="#" id="linkOpenUserdata">Userdata</a>
+        <span>•</span>
+        <a href="#" id="linkOpenBackups">Backups</a>
+      </div>
+    </footer>
+
+    <!-- Backups Modal -->
+    <div class="modal-overlay hidden" id="backupsModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Dota 2 Settings Backups
+          </h3>
+          <button class="btn-close" id="btnCloseBackupsModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="backups-list" id="backupsList"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" id="btnOpenBackupsDir">Open Folder</button>
+          <button class="btn btn-primary btn-sm" id="btnCloseBackupsModalBtn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay hidden" id="confirmModal">
+      <div class="modal-card modal-sm">
+        <div class="modal-header">
+          <h3 id="confirmTitle">Confirm Action</h3>
+          <button class="btn-close" id="btnCancelConfirm">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmMessage" class="modal-desc">Are you sure you want to proceed?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" id="btnConfirmNo">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="btnConfirmYes">Proceed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden elements for state compatibility -->
+    <span id="steamPathValue" style="display:none;"></span>
+    <span id="dotaPathValue" style="display:none;"></span>
+    <span id="accountCount" style="display:none;">0</span>
+    <input type="checkbox" id="chkAutoSync" checked style="display:none;">
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

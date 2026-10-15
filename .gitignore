@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Application Settings & Backups
+backups/*
+!backups/.gitkeep
+switcheroo-settings.json
+
+# Temporary & Log files
+*.tmp
+*.log
+npm-debug.log*
+
+# Operating System files
+Thumbs.db
+Desktop.ini
+.DS_Store

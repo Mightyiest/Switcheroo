@@ -1,0 +1,23 @@
+{
+  "name": "switcheroo",
+  "version": "1.0.0",
+  "description": "1-Click Steam Account Switcher & Dota 2 Settings Synchronizer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "steam",
+    "dota2",
+    "account-switcher",
+    "hotkeys-sync",
+    "electron"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}
