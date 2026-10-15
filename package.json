@@ -36,13 +36,20 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "icon.ico"
     },
     "portable": {
       "artifactName": "${productName}-Portable-v${version}.${ext}",
-      "requestExecutionLevel": "user"
+      "requestExecutionLevel": "user",
+      "unpackDirName": "Switcheroo"
     }
   },
   "devDependencies": {
