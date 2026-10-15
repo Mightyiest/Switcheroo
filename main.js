@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const steamService = require('./steam-service');
@@ -73,7 +73,8 @@ if (!gotTheLock) {
 
     mainWindow = new BrowserWindow({
       width: 800,
-      height: 720,
+      height: 520,
+      useContentSize: true,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
@@ -115,6 +116,29 @@ if (!gotTheLock) {
 
   ipcMain.handle('window:close', handleWindowClose);
   ipcMain.on('window:close', handleWindowClose);
+
+  // Fit window height to renderer content (width stays fixed)
+  const WIN_WIDTH = 800;
+  const MIN_HEIGHT = 400;
+  ipcMain.on('window:fitContent', (event, height) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    const h = Number(height);
+    if (!Number.isFinite(h) || h <= 0) return;
+    const workArea = screen.getDisplayMatching(mainWindow.getBounds()).workArea;
+    const maxHeight = Math.max(MIN_HEIGHT, workArea.height - 40);
+    const target = Math.round(Math.min(Math.max(h, MIN_HEIGHT), maxHeight));
+    const [, currentH] = mainWindow.getContentSize();
+    if (Math.abs(currentH - target) < 2) return;
+    mainWindow.setResizable(true);
+    mainWindow.setContentSize(WIN_WIDTH, target);
+    mainWindow.setResizable(false);
+    // Keep window fully on screen after growing
+    const b = mainWindow.getBounds();
+    const bottom = workArea.y + workArea.height;
+    if (b.y + b.height > bottom) {
+      mainWindow.setPosition(b.x, Math.max(workArea.y, bottom - b.height));
+    }
+  });
 
   const isValidSteamId3 = (id) => typeof id === 'string' && /^\d{1,16}$/.test(id);
   const isValidBackupFolder = (name) => typeof name === 'string' && /^[a-zA-Z0-9_\-\.]+$/.test(name) && !name.includes('..');

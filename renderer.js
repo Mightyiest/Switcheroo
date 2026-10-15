@@ -147,10 +147,33 @@ function setBusy(busy) {
   });
 }
 
+// Auto-fit window height to content (fixed width, height follows account list)
+let fitWindowRaf = null;
+function fitWindowToContent() {
+  if (!window.switcheroo || !window.switcheroo.fitContent) return;
+  cancelAnimationFrame(fitWindowRaf);
+  fitWindowRaf = requestAnimationFrame(() => {
+    const header = document.querySelector('.app-header');
+    const toolbar = document.querySelector('.toolbar-panel');
+    const footer = document.querySelector('.app-footer');
+    const main = document.querySelector('.main-content');
+    if (!header || !toolbar || !footer || !main || !accountsGrid) return;
+    const cs = getComputedStyle(main);
+    const mainPad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const total = header.offsetHeight + toolbar.offsetHeight + footer.offsetHeight +
+      mainPad + accountsGrid.scrollHeight;
+    window.switcheroo.fitContent(Math.ceil(total));
+  });
+}
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
+  if (accountsGrid && typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(fitWindowToContent).observe(accountsGrid);
+  }
   await refreshAll();
+  fitWindowToContent();
 });
 
 function setupEventListeners() {
