@@ -9,6 +9,18 @@
 
 ---
 
+## 📥 Downloads (Latest Release v1.0.0)
+
+Choose the format that works best for your setup from the [Releases Page](https://github.com/Mightyiest/Switcheroo/releases/tag/v1.0.0):
+
+| Package | Description | Best For |
+|---|---|---|
+| 💻 **[Switcheroo-Setup-v1.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v1.0.0/Switcheroo-Setup-v1.0.0.exe)** | **Standard Windows Installer** with desktop/start shortcuts & choice of directory | Everyday gaming PC use (instant launch) |
+| ⚡ **[Switcheroo-v1.0.0-win64.zip](https://github.com/Mightyiest/Switcheroo/releases/download/v1.0.0/Switcheroo-v1.0.0-win64.zip)** | **Standalone Folder Archive** (extract & run `Switcheroo.exe` directly) | USB flash drives, custom gaming directories (< 150ms boot) |
+| 📦 **[Switcheroo-Portable-v1.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v1.0.0/Switcheroo-Portable-v1.0.0.exe)** | **Single-File Portable Executable** with extraction caching | Single-file portability |
+
+---
+
 ## ⚡ Overview
 
 Switching between multiple Steam accounts often resets your Dota 2 hotkeys, item slots, console binds, and chat wheels, forcing you to reconfigure settings manually or suffer through missed keys in-game.
