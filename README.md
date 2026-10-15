@@ -3,6 +3,10 @@
 > **1-Click Steam Account Switcher & Dota 2 Settings Synchronizer**  
 > Effortlessly switch Steam accounts and clone your Dota 2 hotkeys, quickcasts, chat wheels, and preferences across all your accounts.
 
+<p align="center">
+  <img src="screenshot.png" alt="Switcheroo Interface Preview" width="760">
+</p>
+
 ---
 
 ## ⚡ Overview
