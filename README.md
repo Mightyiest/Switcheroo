@@ -84,8 +84,17 @@ When copying settings between accounts, Steam Cloud often causes sync collisions
 
 ---
 
-## 💡 Important: Steam Cloud Conflict Notice
+## 💡 Important Notices
 
+### 1. Windows SmartScreen / Smart App Control ("Unknown Publisher")
+Because Switcheroo is a brand-new, open-source project without an expensive ($400/yr) commercial Microsoft EV code-signing certificate, Windows 11 Smart App Control or Defender SmartScreen may show an *"Unable to verify publisher"* or *"Windows protected your PC"* prompt on downloaded binaries.
+
+**How to bypass in 5 seconds:**
+* **Option A (Properties)**: Right-click `Switcheroo-Portable-v1.0.0.exe` ➔ Click **Properties** ➔ Check the **Unblock** box at the bottom right ➔ Click **OK**.
+* **Option B (SmartScreen Prompt)**: Click **More info** ➔ Click **Run anyway**.
+* **Option C (PowerShell)**: Run `Unblock-File -Path .\Switcheroo-Portable-v1.0.0.exe`.
+
+### 2. Steam Cloud Conflict Notice
 If Steam displays a **"Cloud Conflict"** prompt when launching Dota 2:
 > **Always select `Upload Local Files` / `Use Local Files`**  
 > This instructs Steam to keep the freshly synchronized hotkeys from Switcheroo and push them to your Steam Cloud.
