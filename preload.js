@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('switcheroo', {
   getSettings: () => ipcRenderer.invoke('config:getSettings'),
   saveSettings: (data) => ipcRenderer.invoke('config:saveSettings', data),
   openSteamUrl: (url) => ipcRenderer.invoke('system:openSteamUrl', url),
+  openExternalUrl: (url) => ipcRenderer.invoke('system:openExternalUrl', url),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
   onMaximizedChange: (callback) => {

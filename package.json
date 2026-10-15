@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:portable": "electron-builder --win portable",
+    "build:dir": "electron-builder --win dir"
   },
   "keywords": [
     "steam",
@@ -14,10 +15,38 @@
     "hotkeys-sync",
     "electron"
   ],
-  "author": "",
+  "author": "Mightyiest",
   "license": "ISC",
+  "homepage": "https://github.com/Mightyiest/Switcheroo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mightyiest/Switcheroo.git"
+  },
   "type": "commonjs",
+  "build": {
+    "appId": "com.mightyiest.switcheroo",
+    "productName": "Switcheroo",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-v${version}.${ext}",
+      "requestExecutionLevel": "user"
+    }
+  },
   "devDependencies": {
-    "electron": "^44.5.1"
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
   }
 }

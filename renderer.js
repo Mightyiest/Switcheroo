@@ -39,6 +39,11 @@ const btnCancelConfirm = document.getElementById('btnCancelConfirm');
 const toastContainer = document.getElementById('toastContainer');
 const linkOpenUserdata = document.getElementById('linkOpenUserdata');
 const linkOpenBackups = document.getElementById('linkOpenBackups');
+const linkAbout = document.getElementById('linkAbout');
+const brandHeader = document.getElementById('brandHeader');
+const aboutModal = document.getElementById('aboutModal');
+const btnCloseAboutModal = document.getElementById('btnCloseAboutModal');
+const btnCloseAboutBtn = document.getElementById('btnCloseAboutBtn');
 
 let pendingConfirmAction = null;
 let isOperating = false;
@@ -182,6 +187,64 @@ function setupEventListeners() {
   });
   btnConfirmNo.addEventListener('click', closeConfirmModal);
   btnCancelConfirm.addEventListener('click', closeConfirmModal);
+
+  // About Modal listeners
+  if (linkAbout) {
+    linkAbout.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAboutModal();
+    });
+  }
+  if (brandHeader) {
+    brandHeader.addEventListener('click', () => {
+      openAboutModal();
+    });
+  }
+  if (btnCloseAboutModal) btnCloseAboutModal.addEventListener('click', closeAboutModal);
+  if (btnCloseAboutBtn) btnCloseAboutBtn.addEventListener('click', closeAboutModal);
+
+  // External Links: Open in default browser
+  document.querySelectorAll('.external-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      if (href) {
+        if (window.switcheroo.openExternalUrl) {
+          window.switcheroo.openExternalUrl(href);
+        } else {
+          window.switcheroo.openSteamUrl(href);
+        }
+      }
+    });
+  });
+
+  // Global ESC key listener to close modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAboutModal();
+      closeBackupsModal();
+      closeConfirmModal();
+    }
+  });
+
+  // Click background backdrop to close modals
+  [backupsModal, confirmModal, aboutModal].forEach(modal => {
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    }
+  });
+}
+
+function openAboutModal() {
+  if (aboutModal) aboutModal.classList.remove('hidden');
+}
+
+function closeAboutModal() {
+  if (aboutModal) aboutModal.classList.add('hidden');
 }
 
 /**

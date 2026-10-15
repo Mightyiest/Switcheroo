@@ -27,7 +27,8 @@ if (!gotTheLock) {
     }
   });
 
-  const CONFIG_FILE = path.join(app.getPath('userData'), 'switcheroo-settings.json');
+  const baseConfigDir = process.env.PORTABLE_EXECUTABLE_DIR || app.getPath('userData');
+  const CONFIG_FILE = path.join(baseConfigDir, 'switcheroo-settings.json');
 
   function loadConfig() {
     try {
@@ -235,6 +236,14 @@ if (!gotTheLock) {
     } catch (err) {
       return { success: false, error: err.message };
     }
+  });
+
+  ipcMain.handle('system:openExternalUrl', async (event, url) => {
+    if (url && (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('steam://'))) {
+      await shell.openExternal(url);
+      return true;
+    }
+    return false;
   });
 
   ipcMain.handle('system:openSteamUrl', async (event, url) => {

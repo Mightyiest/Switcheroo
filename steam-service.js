@@ -412,7 +412,8 @@ function copyDirSync(src, dest) {
  * Gets the Switcheroo backups folder
  */
 function getBackupsDir() {
-  const dir = path.join(__dirname, 'backups');
+  const baseDir = process.env.PORTABLE_EXECUTABLE_DIR || __dirname;
+  const dir = path.join(baseDir, 'backups');
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

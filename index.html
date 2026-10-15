@@ -15,7 +15,7 @@
   <div class="app-container">
     <!-- Compact Header -->
     <header class="app-header">
-      <div class="brand">
+      <div class="brand" id="brandHeader" title="Click to view About Switcheroo" style="cursor: pointer;">
         <img src="icon.webp" class="brand-logo" alt="Switcheroo Icon">
         <div class="brand-text">
           <h1>SWITCHEROO</h1>
@@ -110,6 +110,8 @@
         <a href="#" id="linkOpenUserdata">Userdata</a>
         <span>•</span>
         <a href="#" id="linkOpenBackups">Backups</a>
+        <span>•</span>
+        <a href="#" id="linkAbout" title="View app version & links">About</a>
       </div>
     </footer>
 
@@ -148,6 +150,44 @@
         <div class="modal-footer">
           <button class="btn btn-secondary btn-sm" id="btnConfirmNo">Cancel</button>
           <button class="btn btn-primary btn-sm" id="btnConfirmYes">Proceed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay hidden" id="aboutModal">
+      <div class="modal-card modal-sm">
+        <div class="modal-header">
+          <h3>
+            <img src="icon.webp" width="16" height="16" style="border-radius:3px; vertical-align:middle; margin-right:6px;" alt="Icon">
+            About Switcheroo
+          </h3>
+          <button class="btn-close" id="btnCloseAboutModal">&times;</button>
+        </div>
+        <div class="modal-body about-body">
+          <div class="about-hero">
+            <img src="icon.png" class="about-logo" alt="Switcheroo Logo">
+            <h2 class="about-title">SWITCHEROO</h2>
+            <span class="about-version">v1.0.0</span>
+            <p class="about-desc">1-Click Steam Account Switcher &amp; Dota 2 Settings Synchronizer</p>
+          </div>
+          <div class="about-details">
+            <div class="about-row">
+              <span class="about-label">Author</span>
+              <a href="https://github.com/Mightyiest" class="about-link external-link" title="Open Mightyiest GitHub profile">Mightyiest ↗</a>
+            </div>
+            <div class="about-row">
+              <span class="about-label">Repository</span>
+              <a href="https://github.com/Mightyiest/Switcheroo" class="about-link external-link" title="Open Switcheroo GitHub repository">Mightyiest/Switcheroo ↗</a>
+            </div>
+            <div class="about-row">
+              <span class="about-label">License</span>
+              <span class="about-value">ISC (Open Source)</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-sm" id="btnCloseAboutBtn">Done</button>
         </div>
       </div>
     </div>
