@@ -72,10 +72,11 @@ if (!gotTheLock) {
     const iconFile = getAppIcon();
 
     mainWindow = new BrowserWindow({
-      width: 760,
-      height: 570,
-      minWidth: 660,
-      minHeight: 480,
+      width: 780,
+      height: 640,
+      resizable: false,
+      maximizable: false,
+      fullscreenable: false,
       title: 'Switcheroo',
       icon: iconFile,
       frame: false,
@@ -92,34 +93,12 @@ if (!gotTheLock) {
       mainWindow = null;
     });
 
-    mainWindow.on('maximize', () => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('window:isMaximized', true);
-      }
-    });
-
-    mainWindow.on('unmaximize', () => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('window:isMaximized', false);
-      }
-    });
-
     mainWindow.loadFile('index.html');
   }
 
   // Window Controls IPC
   ipcMain.handle('window:minimize', () => {
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
-  });
-
-  ipcMain.handle('window:maximize', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-      } else {
-        mainWindow.maximize();
-      }
-    }
   });
 
   ipcMain.handle('window:close', () => {

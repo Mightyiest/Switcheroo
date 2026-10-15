@@ -14,10 +14,5 @@ contextBridge.exposeInMainWorld('switcheroo', {
   openSteamUrl: (url) => ipcRenderer.invoke('system:openSteamUrl', url),
   openExternalUrl: (url) => ipcRenderer.invoke('system:openExternalUrl', url),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
-  maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
-  onMaximizedChange: (callback) => {
-    const subscription = (event, isMax) => callback(isMax);
-    ipcRenderer.on('window:isMaximized', subscription);
-    return () => ipcRenderer.removeListener('window:isMaximized', subscription);
-  }
+  closeWindow: () => ipcRenderer.invoke('window:close')
 });

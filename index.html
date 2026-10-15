@@ -57,13 +57,10 @@
           </svg>
         </button>
 
-        <!-- Custom Frameless Window Controls -->
+        <!-- Custom Frameless Window Controls (Fixed Window Size) -->
         <div class="win-controls">
           <button class="win-btn" id="btnWinMinimize" title="Minimize">
             <svg viewBox="0 0 10 10" width="10" height="10"><rect y="4.5" width="10" height="1.2" fill="currentColor"/></svg>
-          </button>
-          <button class="win-btn" id="btnWinMaximize" title="Maximize">
-            <svg viewBox="0 0 10 10" width="9" height="9"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
           </button>
           <button class="win-btn win-btn-close" id="btnWinClose" title="Close">
             <svg viewBox="0 0 10 10" width="10" height="10"><path d="M1.5 1.5L8.5 8.5M8.5 1.5L1.5 8.5" stroke="currentColor" stroke-width="1.2"/></svg>
@@ -72,11 +69,17 @@
       </div>
     </header>
 
-    <!-- Compact Toolbar: Master Info + Launch Options -->
+    <!-- Compact Toolbar: Master Info + Test Toggle + Launch Options -->
     <div class="toolbar-panel">
-      <div class="master-chip" id="masterBanner">
-        <span class="master-star">★</span>
-        <span class="master-chip-text">Master: <strong id="masterAccountName">Loading...</strong></span>
+      <div class="toolbar-left">
+        <div class="master-chip" id="masterBanner">
+          <span class="master-star">★</span>
+          <span class="master-chip-text">Master: <strong id="masterAccountName">Loading...</strong></span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btnToggleDummy" title="Switch between real accounts and 6 test dummy accounts">
+          <span id="dummyIcon">🧪</span>
+          <span id="dummyText">Test Mode (6 Accounts)</span>
+        </button>
       </div>
 
       <div class="launch-opts-box">

@@ -5,8 +5,90 @@ let state = {
   masterSteamId3: null,
   autoSyncOnSwitch: true,
   launchOptions: '-novid -high -map dota',
-  backups: []
+  backups: [],
+  isTestMode: true
 };
+
+const DUMMY_ACCOUNTS = [
+  {
+    steamId64: '76561198242661728',
+    steamId3: '282396000',
+    accountName: 'pinkyoshino',
+    personaName: 'impasta (Main)',
+    rememberPassword: true,
+    isActive: true,
+    avatar: null,
+    hasDotaConfig: true,
+    hotkeysHash: 'hash-master-01',
+    dotaFilesCount: 18,
+    launchOptions: '-novid -high -map dota'
+  },
+  {
+    steamId64: '76561198142526674',
+    steamId3: '182260946',
+    accountName: 'owningz2',
+    personaName: 't1 fekar P4',
+    rememberPassword: true,
+    isActive: false,
+    avatar: null,
+    hasDotaConfig: true,
+    hotkeysHash: 'hash-master-01',
+    dotaFilesCount: 18,
+    launchOptions: ''
+  },
+  {
+    steamId64: '76561198170051426',
+    steamId3: '209785698',
+    accountName: 'masterdeadly1',
+    personaName: 'Yuēhàn 约翰 (Ranked)',
+    rememberPassword: true,
+    isActive: false,
+    avatar: null,
+    hasDotaConfig: true,
+    hotkeysHash: 'hash-alt-unsynced-02',
+    dotaFilesCount: 14,
+    launchOptions: ''
+  },
+  {
+    steamId64: '76561198274424993',
+    steamId3: '314159265',
+    accountName: 'miracle_god_mid',
+    personaName: 'Miracle- Fanboy 👑',
+    rememberPassword: true,
+    isActive: false,
+    avatar: null,
+    hasDotaConfig: true,
+    hotkeysHash: 'hash-master-01',
+    dotaFilesCount: 18,
+    launchOptions: ''
+  },
+  {
+    steamId64: '76561198380399428',
+    steamId3: '420133700',
+    accountName: 'support_only_plz',
+    personaName: 'Wards & Smokes (Pos 5)',
+    rememberPassword: false,
+    isActive: false,
+    avatar: null,
+    hasDotaConfig: true,
+    hotkeysHash: 'hash-alt-unsynced-03',
+    dotaFilesCount: 12,
+    launchOptions: ''
+  },
+  {
+    steamId64: '76561198516153851',
+    steamId3: '555888123',
+    accountName: 'immortal_grind_smurf',
+    personaName: 'Road to Immortal ⚔️',
+    rememberPassword: true,
+    isActive: false,
+    avatar: null,
+    hasDotaConfig: false,
+    hotkeysHash: null,
+    dotaFilesCount: 0,
+    launchOptions: ''
+  }
+];
 
 // DOM Elements
 const steamPathValue = document.getElementById('steamPathValue');
@@ -23,8 +105,10 @@ const btnSyncAll = document.getElementById('btnSyncAll');
 const btnBackups = document.getElementById('btnBackups');
 const btnRefresh = document.getElementById('btnRefresh');
 const btnWinMinimize = document.getElementById('btnWinMinimize');
-const btnWinMaximize = document.getElementById('btnWinMaximize');
 const btnWinClose = document.getElementById('btnWinClose');
+const btnToggleDummy = document.getElementById('btnToggleDummy');
+const dummyIcon = document.getElementById('dummyIcon');
+const dummyText = document.getElementById('dummyText');
 const backupsModal = document.getElementById('backupsModal');
 const btnCloseBackupsModal = document.getElementById('btnCloseBackupsModal');
 const btnCloseBackupsModalBtn = document.getElementById('btnCloseBackupsModalBtn');
@@ -140,15 +224,10 @@ function setupEventListeners() {
     });
   });
 
-  // Custom Frameless Window controls
+  // Custom Frameless Window controls (Minimize & Close for fixed window)
   if (btnWinMinimize) {
     btnWinMinimize.addEventListener('click', () => {
       window.switcheroo.minimizeWindow();
-    });
-  }
-  if (btnWinMaximize) {
-    btnWinMaximize.addEventListener('click', () => {
-      window.switcheroo.maximizeWindow();
     });
   }
   if (btnWinClose) {
@@ -157,26 +236,15 @@ function setupEventListeners() {
     });
   }
 
-  // Listen for maximize state changes to update the button icon
-  if (window.switcheroo.onMaximizedChange && btnWinMaximize) {
-    window.switcheroo.onMaximizedChange((isMax) => {
-      if (isMax) {
-        btnWinMaximize.innerHTML = '<svg viewBox="0 0 10 10" width="9" height="9"><path d="M3 1h6v6M1 3h6v6H1z" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>';
-        btnWinMaximize.title = 'Restore Down';
-      } else {
-        btnWinMaximize.innerHTML = '<svg viewBox="0 0 10 10" width="9" height="9"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
-        btnWinMaximize.title = 'Maximize';
-      }
-    });
-  }
-
-  // Double click header to toggle maximize / unmaximize
-  const appHeader = document.querySelector('.app-header');
-  if (appHeader) {
-    appHeader.addEventListener('dblclick', (e) => {
-      if (!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('a')) {
-        window.switcheroo.maximizeWindow();
-      }
+  // Test Mode Toggle
+  if (btnToggleDummy) {
+    btnToggleDummy.addEventListener('click', async () => {
+      state.isTestMode = !state.isTestMode;
+      await refreshAll();
+      showToast(
+        state.isTestMode ? 'Loaded 6 dummy accounts for UI testing' : 'Loaded real Steam accounts',
+        'info'
+      );
     });
   }
 
@@ -271,15 +339,32 @@ async function refreshAll() {
       }
     }
 
-    // 3. Fetch accounts
-    const accounts = await window.switcheroo.getAccounts();
+    // 3. Fetch accounts (supports test mode with 6 accounts)
+    let accounts = [];
+    if (state.isTestMode) {
+      accounts = DUMMY_ACCOUNTS.map(a => ({ ...a }));
+      if (btnToggleDummy) {
+        btnToggleDummy.classList.add('btn-test-active');
+        if (dummyText) dummyText.textContent = 'Test Mode (6 Accounts)';
+        if (dummyIcon) dummyIcon.textContent = '🧪';
+      }
+    } else {
+      accounts = await window.switcheroo.getAccounts();
+      if (btnToggleDummy) {
+        btnToggleDummy.classList.remove('btn-test-active');
+        if (dummyText) dummyText.textContent = 'Load Test (6 Accounts)';
+        if (dummyIcon) dummyIcon.textContent = '👥';
+      }
+    }
     state.accounts = accounts;
 
     // If master is not set or not found, auto-select the active account or first account
     if ((!state.masterSteamId3 || !accounts.some(a => a.steamId3 === state.masterSteamId3)) && accounts.length > 0) {
       const active = accounts.find(a => a.isActive);
       state.masterSteamId3 = active ? active.steamId3 : accounts[0].steamId3;
-      await window.switcheroo.saveSettings({ masterSteamId3: state.masterSteamId3 });
+      if (!state.isTestMode) {
+        await window.switcheroo.saveSettings({ masterSteamId3: state.masterSteamId3 });
+      }
     }
 
     renderAccounts();
@@ -477,11 +562,16 @@ function renderAccounts() {
  */
 async function setMasterAccount(steamId3) {
   state.masterSteamId3 = steamId3;
-  await window.switcheroo.saveSettings({ masterSteamId3: steamId3 });
+  if (!state.isTestMode) {
+    await window.switcheroo.saveSettings({ masterSteamId3: steamId3 });
+  }
   renderAccounts();
   updateMasterBanner();
   const acc = state.accounts.find(a => a.steamId3 === steamId3);
-  showToast(`Template master set to ${acc ? acc.personaName : steamId3}`, 'info');
+  showToast(
+    state.isTestMode ? `[Test Mode] Template master set to ${acc ? acc.personaName : steamId3}` : `Template master set to ${acc ? acc.personaName : steamId3}`,
+    'info'
+  );
 }
 
 /**
@@ -498,6 +588,14 @@ function handleSingleSync(targetAcc) {
     'Sync Dota 2 Settings',
     `Clone hotkeys, quickcast, chat wheels and control groups from <strong>${escapeHtml(masterAcc.personaName)}</strong> to <strong>${escapeHtml(targetAcc.personaName)}</strong>?<br><br>A full backup of existing settings will be created automatically before overwriting.`,
     async () => {
+      if (state.isTestMode) {
+        showToast(`[Test Mode] Synced settings from ${masterAcc.personaName} to ${targetAcc.personaName}!`, 'success');
+        targetAcc.hotkeysHash = masterAcc.hotkeysHash;
+        targetAcc.hasDotaConfig = true;
+        renderAccounts();
+        return;
+      }
+
       if (isOperating) return;
       setBusy(true);
       try {
@@ -542,6 +640,16 @@ function handleSyncAllClick() {
     'Sync Master to All Accounts',
     `Clone all Dota 2 hotkeys & settings from Master <strong>${escapeHtml(masterAcc.personaName)}</strong> to all <strong>${targetCount} other account(s)</strong>?<br><br>Backups of all accounts will be created automatically before syncing.`,
     async () => {
+      if (state.isTestMode) {
+        showToast(`[Test Mode] Synced Master settings to all ${targetCount} accounts!`, 'success');
+        state.accounts.forEach(a => {
+          a.hotkeysHash = masterAcc.hotkeysHash;
+          a.hasDotaConfig = true;
+        });
+        renderAccounts();
+        return;
+      }
+
       if (isOperating) return;
       setBusy(true);
       try {
@@ -563,6 +671,15 @@ function handleSyncAllClick() {
  * Switches Steam account and launches Dota 2 (or launches directly if already active)
  */
 async function handleSwitchAccount(accountName, targetSteamId3, launchDota = true) {
+  if (state.isTestMode) {
+    showToast(`[Test Mode] Switched active profile to @${accountName} and launched Dota 2!`, 'success');
+    state.accounts.forEach(a => {
+      a.isActive = (a.accountName.toLowerCase() === accountName.toLowerCase());
+    });
+    renderAccounts();
+    return;
+  }
+
   if (isOperating) return;
   setBusy(true);
   try {
