@@ -362,7 +362,28 @@ fn perform_install(cfg: &InstallConfig) -> Result<PathBuf, String> {
     Ok(target_exe)
 }
 
-fn perform_uninstall() -> Result<(), String> {
+fn build_self_cleanup_raw_arg(exe_path: &Path, install_dir: &Path) -> String {
+    format!(
+        "/d /s /c \"for /L %i in (1,1,15) do @(del /f /q \"{}\" >nul 2>nul & rmdir \"{}\" >nul 2>nul & if exist \"{}\" (ping -n 2 127.0.0.1 >nul) else (exit 0))\"",
+        exe_path.display(),
+        install_dir.display(),
+        exe_path.display(),
+    )
+}
+
+fn schedule_self_cleanup(exe_path: &Path, install_dir: &Path) {
+    let raw_args = build_self_cleanup_raw_arg(exe_path, install_dir);
+    let _ = Command::new("cmd.exe")
+        .raw_arg(raw_args)
+        .current_dir(std::env::temp_dir())
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn();
+}
+
+fn perform_uninstall_with_cleanup() -> Result<Option<(PathBuf, PathBuf)>, String> {
     close_running_switcheroo();
 
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
@@ -387,28 +408,35 @@ fn perform_uninstall() -> Result<(), String> {
 
     let _ = hkcu.delete_subkey_all(UNINSTALL_REG_PATH);
 
+    let mut cleanup = None;
     if let Some(dir) = install_dir {
         let app_exe = dir.join("Switcheroo.exe");
         if app_exe.exists() {
             let _ = fs::remove_file(&app_exe);
         }
 
-        if let Ok(cur_exe) = std::env::current_exe() {
-            let script = format!(
-                "ping 127.0.0.1 -n 2 > nul & del /f /q \"{}\" & rmdir \"{}\"",
-                cur_exe.display(),
-                dir.display()
-            );
-            let _ = Command::new("cmd.exe")
-                .args(["/C", &script])
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW)
-                .spawn();
+        let uninst_in_dir = dir.join("Uninstall Switcheroo.exe");
+        let running_from_install_dir = std::env::current_exe()
+            .ok()
+            .filter(|cur| cur.parent().is_some_and(|p| p == dir) || cur == &uninst_in_dir);
+
+        if let Some(cur_exe) = running_from_install_dir {
+            cleanup = Some((cur_exe, dir));
+        } else {
+            if uninst_in_dir.exists() {
+                let _ = fs::remove_file(&uninst_in_dir);
+            }
+            let _ = fs::remove_dir(&dir);
         }
     }
 
+    Ok(cleanup)
+}
+
+fn perform_uninstall() -> Result<(), String> {
+    if let Some((cur_exe, dir)) = perform_uninstall_with_cleanup()? {
+        schedule_self_cleanup(&cur_exe, &dir);
+    }
     Ok(())
 }
 
@@ -433,7 +461,7 @@ enum Stage {
 
 enum WorkerMsg {
     Installed(Result<PathBuf, String>),
-    Uninstalled(Result<(), String>),
+    Uninstalled(Result<Option<(PathBuf, PathBuf)>, String>),
 }
 
 struct InstallerApp {
@@ -443,9 +471,18 @@ struct InstallerApp {
     start_menu_shortcut: bool,
     launch_after: bool,
     error_msg: Option<String>,
+    pending_cleanup: Option<(PathBuf, PathBuf)>,
     logo: Option<TextureHandle>,
     tx: Sender<WorkerMsg>,
     rx: Receiver<WorkerMsg>,
+}
+
+impl Drop for InstallerApp {
+    fn drop(&mut self) {
+        if let Some((exe, dir)) = self.pending_cleanup.take() {
+            schedule_self_cleanup(&exe, &dir);
+        }
+    }
 }
 
 impl InstallerApp {
@@ -468,6 +505,7 @@ impl InstallerApp {
             start_menu_shortcut: true,
             launch_after: true,
             error_msg: None,
+            pending_cleanup: None,
             logo,
             tx,
             rx,
@@ -498,7 +536,7 @@ impl InstallerApp {
         let tx = self.tx.clone();
         let ctx_bg = ctx.clone();
         std::thread::spawn(move || {
-            let res = perform_uninstall();
+            let res = perform_uninstall_with_cleanup();
             let _ = tx.send(WorkerMsg::Uninstalled(res));
             ctx_bg.request_repaint();
         });
@@ -517,7 +555,8 @@ impl eframe::App for InstallerApp {
                     self.error_msg = Some(err);
                     self.stage = Stage::Ready;
                 }
-                WorkerMsg::Uninstalled(Ok(())) => {
+                WorkerMsg::Uninstalled(Ok(cleanup)) => {
+                    self.pending_cleanup = cleanup;
                     self.stage = Stage::Uninstalled;
                 }
                 WorkerMsg::Uninstalled(Err(err)) => {
@@ -972,6 +1011,12 @@ impl eframe::App for InstallerApp {
             StrokeKind::Inside,
         );
     }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        if let Some((exe, dir)) = self.pending_cleanup.take() {
+            schedule_self_cleanup(&exe, &dir);
+        }
+    }
 }
 
 fn setup_btn(ui: &mut egui::Ui, label: &str, width: f32, primary: bool) -> egui::Response {
@@ -1231,5 +1276,32 @@ mod tests {
         bad_enc.write_all(b"NOT_A_PE").unwrap();
         let bad_gz = bad_enc.finish().unwrap();
         assert!(decompress_payload(&bad_gz).is_err());
+    }
+
+    #[test]
+    fn self_cleanup_deletes_temp_exe_and_dir_silently() {
+        let base = std::env::temp_dir().join(format!(
+            "switcheroo_cleanup_test_{}_{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&base).unwrap();
+        let fake_uninst = base.join("Uninstall Switcheroo.exe");
+        fs::write(&fake_uninst, b"dummy").unwrap();
+
+        schedule_self_cleanup(&fake_uninst, &base);
+
+        for _ in 0..40 {
+            if !base.exists() {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        }
+
+        assert!(!fake_uninst.exists());
+        assert!(!base.exists());
     }
 }
