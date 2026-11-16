@@ -6,7 +6,7 @@
 Effortlessly switch Steam accounts and clone your Dota 2 hotkeys, quickcasts, chat wheels, and preferences across all your accounts — rewritten in **100% Pure Rust** with a native GPU UI & native Rust installer (zero Electron, Node.js, or WebView2 bloat).
 
 [![Written in 100% Rust](https://img.shields.io/badge/Written%20in-100%25%20Pure%20Rust-ea580c?style=for-the-badge&logo=rust)](Cargo.toml)
-[![VirusTotal by Google](https://img.shields.io/badge/VirusTotal-by%20Google-394EFF?style=for-the-badge&logo=virustotal)](https://www.virustotal.com/gui/file/3eec803153207333a82b52bd8071a095306a0a4e2bccc8490bdf76087d75c5fc)
+[![VirusTotal by Google](https://img.shields.io/badge/VirusTotal-by%20Google-394EFF?style=for-the-badge&logo=virustotal)](https://www.virustotal.com/gui/file/b32ea600e6703a82f2a59e2c9ad80bf6c60878338dad561af9c4f7420a0335d5)
 [![Open Source ISC](https://img.shields.io/badge/Open%20Source-ISC%20License-10b981?style=for-the-badge)](LICENSE)
 [![Windows 10/11 x64](https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6?style=for-the-badge)](https://github.com/Mightyiest/Switcheroo/releases)
 
@@ -24,15 +24,15 @@ Choose the format that works best for your setup from the [Releases Page](https:
 
 | Package | Size | VirusTotal (by Google) | Best For |
 |---|---|---|---|
-| 💻 **[Switcheroo-Setup-v2.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Setup-v2.0.0.exe)** | `9.97 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/3eec803153207333a82b52bd8071a095306a0a4e2bccc8490bdf76087d75c5fc) | **Pure Rust Windows Installer** with Desktop/Start Menu shortcuts & 1-click Windows uninstall |
-| 📦 **[Switcheroo-Portable-v2.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Portable-v2.0.0.exe)** | `6.95 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/bc37854c35ab0c4fa99fb867b1cc94f6416be139ada6545aef29768b7bb579df) | **Single-File Portable Executable** (no install, instant launch) |
-| ⚡ **[Switcheroo-v2.0.0-win64.zip](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-v2.0.0-win64.zip)** | `3.45 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/4ce5d9798116712fb90cbfa9f323d844ba106e3315fc3ead3176238824783d4e) | **Standalone Archive** (`Switcheroo.exe`, `README.md`, `LICENSE`) |
+| 💻 **[Switcheroo-Setup-v2.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Setup-v2.0.0.exe)** | `9.97 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/b32ea600e6703a82f2a59e2c9ad80bf6c60878338dad561af9c4f7420a0335d5) | **Pure Rust Windows Installer** with Desktop/Start Menu shortcuts & 1-click Windows uninstall |
+| 📦 **[Switcheroo-Portable-v2.0.0.exe](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Portable-v2.0.0.exe)** | `6.95 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/66025334290d4af76d092766c74bbdb35dca7025cca5973157ecbc0033c325ed) | **Single-File Portable Executable** (no install, instant launch) |
+| ⚡ **[Switcheroo-v2.0.0-win64.zip](https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-v2.0.0-win64.zip)** | `3.45 MB` | [🔍 View VirusTotal Report](https://www.virustotal.com/gui/file/a0a8f4b554fd4e624948deea75871f41c54594f64c65a37cf9f921b323f9e7fa) | **Standalone Archive** (`Switcheroo.exe`, `README.md`, `LICENSE`) |
 
 ### Binary SHA-256 Checksums
 ```text
-Switcheroo-Setup-v2.0.0.exe     3eec803153207333a82b52bd8071a095306a0a4e2bccc8490bdf76087d75c5fc
-Switcheroo-Portable-v2.0.0.exe  bc37854c35ab0c4fa99fb867b1cc94f6416be139ada6545aef29768b7bb579df
-Switcheroo-v2.0.0-win64.zip     4ce5d9798116712fb90cbfa9f323d844ba106e3315fc3ead3176238824783d4e
+Switcheroo-Setup-v2.0.0.exe     b32ea600e6703a82f2a59e2c9ad80bf6c60878338dad561af9c4f7420a0335d5
+Switcheroo-Portable-v2.0.0.exe  66025334290d4af76d092766c74bbdb35dca7025cca5973157ecbc0033c325ed
+Switcheroo-v2.0.0-win64.zip     a0a8f4b554fd4e624948deea75871f41c54594f64c65a37cf9f921b323f9e7fa
 ```
 *(The SHA-256 for `Switcheroo-v2.0.0-win64.zip` is published in `SHA256SUMS.txt` on the release and on the [GitHub Pages Security section](https://mightyiest.github.io/Switcheroo/#security).)*
 
