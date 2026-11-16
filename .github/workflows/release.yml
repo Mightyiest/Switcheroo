@@ -1,0 +1,85 @@
+name: Release Build & Attestation
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run unit tests
+        run: cargo test
+
+      - name: Build native Rust app, installer, zip, and SHA256SUMS
+        shell: pwsh
+        run: ./Build-Release.ps1
+
+      - name: Generate GitHub Build Provenance Attestations
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/Switcheroo-Setup-*.exe
+            dist/Switcheroo-Portable-*.exe
+            dist/Switcheroo-*-win64.zip
+
+      - name: Scan release binaries with VirusTotal (by Google)
+        if: ${{ secrets.VT_API_KEY != '' }}
+        uses: crazy-max/ghaction-virustotal@v4
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            dist/Switcheroo-Setup-*.exe
+            dist/Switcheroo-Portable-*.exe
+            dist/Switcheroo-*-win64.zip
+
+      - name: Prepare release notes with SHA-256 and VirusTotal links
+        shell: pwsh
+        run: |
+          $notes = @(
+            "## Switcheroo — 100% Pure Native Rust Edition",
+            "",
+            "Built completely in native Rust (zero Electron, Node.js, or WebView2 runtime dependencies) with GitHub Build Provenance Attestations.",
+            "",
+            "### SHA-256 Checksums & VirusTotal (by Google) Verification",
+            "| Artifact | SHA-256 | VirusTotal Report |",
+            "|---|---|---|"
+          )
+          foreach ($line in (Get-Content dist/SHA256SUMS.txt)) {
+            if ($line -match '^([a-f0-9]{64})\s+(.+)$') {
+              $hash = $Matches[1]
+              $name = $Matches[2]
+              $notes += "| ``$name`` | ``$hash`` | [View on VirusTotal](https://www.virustotal.com/gui/file/$hash) |"
+            }
+          }
+          $notes | Set-Content release-notes.md -Encoding UTF8
+
+      - name: Upload workflow build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: switcheroo-windows-release
+          path: dist/*
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          files: |
+            dist/Switcheroo-Setup-*.exe
+            dist/Switcheroo-Portable-*.exe
+            dist/Switcheroo-*-win64.zip
+            dist/SHA256SUMS.txt

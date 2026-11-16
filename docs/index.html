@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Switcheroo — 100% Pure Rust Steam Switcher &amp; Dota 2 Hotkey Sync</title>
+  <meta name="description" content="1-Click Steam Account Switcher & Dota 2 Settings Synchronizer. Written in 100% Native Rust, free, open-source (ISC), and verifiable on VirusTotal by Google.">
+  <link rel="icon" type="image/png" href="icon.png">
+  <style>
+    :root {
+      --bg-main: #090a10;
+      --bg-card: #11121d;
+      --bg-surface: #181a2b;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-purple: rgba(168, 85, 247, 0.35);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --purple: #a855f7;
+      --purple-light: #c084fc;
+      --red: #ef4444;
+      --red-hover: #f87171;
+      --red-dark: #b91c1c;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --blue: #38bdf8;
+      --vt-blue: #394eff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background-color: var(--bg-main);
+      background-image:
+        radial-gradient(circle at 12% 0%, rgba(168, 85, 247, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 88% 35%, rgba(239, 68, 68, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at 50% 100%, rgba(57, 78, 255, 0.08) 0%, transparent 50%);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code, pre {
+      font-family: Consolas, 'JetBrains Mono', monospace;
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Nav */
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(11, 12, 19, 0.9);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-decoration: none;
+    }
+
+    .brand:hover { text-decoration: none; }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border-purple);
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
+    }
+
+    .brand-sub {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--purple-light);
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a { color: var(--text-muted); }
+    .nav-links a:hover { color: #fff; text-decoration: none; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 56px 0 36px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .pill-rust {
+      color: #fb923c;
+      border-color: rgba(251, 146, 60, 0.35);
+      background: rgba(251, 146, 60, 0.08);
+    }
+
+    .pill-vt {
+      color: #93c5fd;
+      border-color: rgba(57, 78, 255, 0.45);
+      background: rgba(57, 78, 255, 0.12);
+    }
+
+    .pill-oss {
+      color: var(--green);
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 45%, var(--purple-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      max-width: 680px;
+      margin: 0 auto 28px;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14.5px;
+      transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:hover { text-decoration: none; transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--red-hover) 0%, var(--red) 100%);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-secondary:hover {
+      border-color: var(--border-purple);
+      background: rgba(168, 85, 247, 0.12);
+    }
+
+    .btn-vt {
+      background: rgba(57, 78, 255, 0.15);
+      color: #bfdbfe;
+      border: 1px solid rgba(57, 78, 255, 0.45);
+      padding: 7px 13px;
+      font-size: 12.5px;
+    }
+    .btn-vt:hover {
+      background: rgba(57, 78, 255, 0.28);
+      color: #fff;
+    }
+
+    .preview-frame {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-purple);
+      border-radius: 14px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    .preview-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    /* Sections */
+    section { padding: 44px 0; }
+
+    .section-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 0.96rem;
+    }
+
+    /* Download Cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card.featured {
+      border-color: rgba(239, 68, 68, 0.45);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.1);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card h3 { font-size: 1.05rem; font-weight: 700; color: #fff; }
+
+    .size-badge {
+      font-family: Consolas, monospace;
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .card p { color: var(--text-muted); font-size: 0.9rem; flex: 1; }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Security & Checksums */
+    .security-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .hash-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .hash-table th,
+    .hash-table td {
+      text-align: left;
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+
+    .hash-table th {
+      color: var(--text-dim);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .hash-code {
+      font-family: Consolas, monospace;
+      font-size: 11.5px;
+      color: var(--purple-light);
+      word-break: break-all;
+    }
+
+    pre.verify-cmd {
+      background: var(--bg-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #e5e7eb;
+      font-size: 12.5px;
+      overflow-x: auto;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .feature-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .feature-box h4 {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .feature-box p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 26px 0 40px;
+      color: var(--text-dim);
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hash-table th:nth-child(2),
+      .hash-table td:nth-child(2) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <img src="icon.png" alt="Switcheroo Logo">
+        <div>
+          SWITCHEROO
+          <span class="brand-sub">100% NATIVE RUST</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="#downloads">Downloads</a>
+        <a href="#security">VirusTotal &amp; SHA-256</a>
+        <a href="#architecture">Rust Architecture</a>
+        <a href="https://github.com/Mightyiest/Switcheroo" target="_blank" rel="noopener">GitHub Source ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="pill-row">
+        <span class="trust-pill pill-rust">🦀 100% Written in Native Rust</span>
+        <span class="trust-pill pill-vt">🛡️ Verified with VirusTotal (by Google)</span>
+        <span class="trust-pill pill-oss">🔓 Free &amp; Open Source (ISC)</span>
+      </div>
+
+      <h1>1-Click Steam Account Switcher &amp; Dota 2 Hotkey Sync</h1>
+      <p class="hero-desc">
+        Switch Steam accounts and sync your Dota 2 hotkeys, quickcasts, console binds, and chat wheels in one click.
+        Rebuilt completely in <strong>100% Pure Native Rust</strong> with zero Electron, Node.js, or WebView2 bloat.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Setup-v2.0.0.exe">
+          💻 Download Rust Installer (v2.0.0)
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/Mightyiest/Switcheroo" target="_blank" rel="noopener">
+          🔍 Inspect Source on GitHub
+        </a>
+      </div>
+
+      <div class="preview-frame">
+        <img src="screenshot.png" alt="Switcheroo Interface Preview">
+      </div>
+    </section>
+
+    <section id="downloads">
+      <h2 class="section-title">Downloads (v2.0.0 — Pure Rust Edition)</h2>
+      <p class="section-sub">
+        All Windows x64 binaries are compiled from open-source Rust and published with SHA-256 checksums and Google VirusTotal reports.
+      </p>
+
+      <div class="grid-3">
+        <div class="card featured">
+          <div class="card-top">
+            <h3>💻 Native Rust Installer</h3>
+            <span class="size-badge">10.48 MB</span>
+          </div>
+          <p>
+            Dark-theme native Rust setup wizard (<code>Switcheroo-Setup-v2.0.0.exe</code>) with Desktop &amp; Start Menu shortcuts and clean Windows uninstall support.
+          </p>
+          <div class="card-actions">
+            <a class="btn btn-primary" style="padding:8px 14px;font-size:13px;" href="https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Setup-v2.0.0.exe">Download Setup</a>
+            <a class="btn btn-vt" href="https://www.virustotal.com/gui/file/f50713b4a0d474d0fcb6aeef5d02774d85360e7f3c5cd93b000fe3ea4e4dece9" target="_blank" rel="noopener">VirusTotal Report ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <h3>📦 Single-File Portable</h3>
+            <span class="size-badge">7.38 MB</span>
+          </div>
+          <p>
+            Zero installation required (<code>Switcheroo-Portable-v2.0.0.exe</code>). Drop onto any folder or USB drive and launch instantly.
+          </p>
+          <div class="card-actions">
+            <a class="btn btn-secondary" style="padding:8px 14px;font-size:13px;" href="https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-Portable-v2.0.0.exe">Download Portable</a>
+            <a class="btn btn-vt" href="https://www.virustotal.com/gui/file/0c97434776aedb1a860faaa4862ad87c80dbfc7ba47501c2a600cb76a527d3c6" target="_blank" rel="noopener">VirusTotal Report ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <h3>⚡ Standalone ZIP</h3>
+            <span class="size-badge">3.53 MB</span>
+          </div>
+          <p>
+            Compact archive (<code>Switcheroo-v2.0.0-win64.zip</code>) bundling <code>Switcheroo.exe</code>, <code>README.md</code>, and <code>LICENSE</code>.
+          </p>
+          <div class="card-actions">
+            <a class="btn btn-secondary" style="padding:8px 14px;font-size:13px;" href="https://github.com/Mightyiest/Switcheroo/releases/download/v2.0.0/Switcheroo-v2.0.0-win64.zip">Download ZIP</a>
+            <a class="btn btn-vt" href="https://www.virustotal.com/gui/file/7a8f21621428382100e0fedcdac7c6dc0ce2ea827982740f1453bf7915b53c49" target="_blank" rel="noopener">VirusTotal Report ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <h2 class="section-title">VirusTotal (by Google) &amp; Transparency</h2>
+      <p class="section-sub">
+        Every release binary is 100% open source, performs zero network requests, and can be verified before execution against VirusTotal and SHA-256 checksums.
+      </p>
+
+      <div class="security-panel">
+        <table class="hash-table">
+          <thead>
+            <tr>
+              <th>Release File</th>
+              <th>SHA-256 Checksum</th>
+              <th>VirusTotal (by Google)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Switcheroo-Setup-v2.0.0.exe</code></td>
+              <td><span class="hash-code">f50713b4a0d474d0fcb6aeef5d02774d85360e7f3c5cd93b000fe3ea4e4dece9</span></td>
+              <td><a href="https://www.virustotal.com/gui/file/f50713b4a0d474d0fcb6aeef5d02774d85360e7f3c5cd93b000fe3ea4e4dece9" target="_blank" rel="noopener">View Scan ↗</a></td>
+            </tr>
+            <tr>
+              <td><code>Switcheroo-Portable-v2.0.0.exe</code></td>
+              <td><span class="hash-code">0c97434776aedb1a860faaa4862ad87c80dbfc7ba47501c2a600cb76a527d3c6</span></td>
+              <td><a href="https://www.virustotal.com/gui/file/0c97434776aedb1a860faaa4862ad87c80dbfc7ba47501c2a600cb76a527d3c6" target="_blank" rel="noopener">View Scan ↗</a></td>
+            </tr>
+            <tr>
+              <td><code>Switcheroo-v2.0.0-win64.zip</code></td>
+              <td><span class="hash-code">7a8f21621428382100e0fedcdac7c6dc0ce2ea827982740f1453bf7915b53c49</span></td>
+              <td><a href="https://www.virustotal.com/gui/file/7a8f21621428382100e0fedcdac7c6dc0ce2ea827982740f1453bf7915b53c49" target="_blank" rel="noopener">View Scan ↗</a></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre class="verify-cmd"># Verify local SHA-256 in PowerShell:
+Get-FileHash .\Switcheroo-Setup-v2.0.0.exe -Algorithm SHA256
+
+# Optional: Verify GitHub Build Provenance Attestation:
+gh attestation verify .\Switcheroo-Setup-v2.0.0.exe --repo Mightyiest/Switcheroo</pre>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2 class="section-title">Why Pure Native Rust?</h2>
+      <p class="section-sub">
+        Designed from scratch for competitive Dota 2 players who care about speed, privacy, and zero background bloat.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-box">
+          <h4>🦀 Memory-Safe Native Code</h4>
+          <p>Compiled directly to x86_64 machine code with <code>eframe</code> / <code>egui</code> OpenGL rendering — no Chromium, Node.js, or Edge WebView2 required.</p>
+        </div>
+        <div class="feature-box">
+          <h4>☁️ Cloud-Safe Sync</h4>
+          <p>Copies only allowlisted Dota 2 key/convar files, verifies SHA-1 parity, and leaves <code>remotecache.vdf</code> untouched so Steam Cloud uploads your fresh binds.</p>
+        </div>
+        <div class="feature-box">
+          <h4>🛡️ Automated Backups</h4>
+          <p>Snapshots your target account's allowlisted Dota 2 settings automatically before syncing or restoring, keeping up to 10 snapshots per account with 1-click restore from inside the app.</p>
+        </div>
+        <div class="feature-box">
+          <h4>🔒 100% Local &amp; Auditable</h4>
+          <p>No telemetry, no password prompts, and full public Rust source code in <a href="https://github.com/Mightyiest/Switcheroo" target="_blank" rel="noopener">Mightyiest/Switcheroo</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>Switcheroo v2.0.0 • Written in 100% Native Rust • ISC Open Source License</span>
+      <span>
+        <a href="https://github.com/Mightyiest/Switcheroo" target="_blank" rel="noopener">Repository</a> •
+        <a href="https://github.com/Mightyiest/Switcheroo/releases" target="_blank" rel="noopener">Releases</a> •
+        <a href="https://github.com/Mightyiest" target="_blank" rel="noopener">@Mightyiest</a>
+      </span>
+    </footer>
+  </main>
+</body>
+</html>

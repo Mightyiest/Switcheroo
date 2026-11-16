@@ -1,6 +1,6 @@
-# Dependencies
-node_modules/
-dist/
+# Rust Build Artifacts
+/target/
+/dist/
 *.exe
 
 # Application Settings & Backups
@@ -11,7 +11,6 @@ switcheroo-settings.json
 # Temporary & Log files
 *.tmp
 *.log
-npm-debug.log*
 
 # Operating System files
 Thumbs.db

@@ -1,0 +1,51 @@
+[package]
+name = "switcheroo"
+version = "2.0.0"
+edition = "2024"
+authors = ["Mightyiest"]
+description = "1-Click Steam Account Switcher & Dota 2 Settings Synchronizer"
+license = "ISC"
+repository = "https://github.com/Mightyiest/Switcheroo"
+
+[[bin]]
+name = "Switcheroo"
+path = "src/main.rs"
+
+[[bin]]
+name = "Switcheroo-Setup"
+path = "src/bin/installer.rs"
+
+[dependencies]
+eframe = { version = "0.37.0", default-features = false, features = ["glow", "default_fonts", "system_fonts", "clipboard", "links"] }
+egui = "0.37.0"
+flate2 = "1.1"
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "webp"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha1 = "0.11.0"
+winreg = "0.56.0"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+windows = { version = "0.62.2", features = [
+  "Win32_Foundation",
+  "Win32_System_Com",
+  "Win32_UI_Shell",
+] }
+windows-sys = { version = "0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_System_Threading",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_UI_Shell",
+  "Win32_Graphics_Gdi",
+] }
+
+[build-dependencies]
+winresource = "0.1.34"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
